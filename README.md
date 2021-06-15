@@ -1,8 +1,9 @@
 # while
 带出口的死循环
 
-调用示例
+# 调用示例
 
+```go
 //初始化循环对象，100为最大循环数量
 while := NewWhile(100)
  
@@ -17,3 +18,4 @@ while.For(func() {
    }
 })
 fmt.Println(a)
+```
