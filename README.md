@@ -9,7 +9,6 @@ while := NewWhile(100)
  
 //todo 业务代码
 //模拟业务代码，a初始为100，循环减一，当减到90时退出循环
-//测试MaxWorkNum可以注释 while.Cancel()
 a := 100
 while.For(func() {
    a--
