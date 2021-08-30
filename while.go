@@ -1,11 +1,18 @@
-package while
+package utils
 
 import "context"
 
+const (
+	_                 = iota
+	BreakStatusNormal // 正常关闭
+	BreakStatusGtMax  // 超过最大循环次数关闭
+)
+
 type While struct {
-	Ctx        context.Context
-	Cancel     context.CancelFunc
-	MaxWorkNum int
+	Ctx         context.Context
+	Cancel      context.CancelFunc
+	MaxWorkNum  int
+	BreakStatus int // break原因
 }
 
 func NewWhile(maxWorkNum int) While {
@@ -21,21 +28,31 @@ func (w *While) For(f func()) {
 	var count int
 loop:
 	for {
-		f()
-		count++
-		if count >= w.MaxWorkNum {
-			break
-		}
-
+		// 用户break
 		select {
 		case <-w.Ctx.Done():
 			break loop
 		default:
-			continue
+		}
+
+		// 执行事件
+		f()
+
+		// 判断执行次数是否超过最大次数
+		count++
+		if count >= w.MaxWorkNum {
+			w.BreakStatus = BreakStatusGtMax
+			break
 		}
 	}
 }
 
 func (w *While) Break() {
+	w.BreakStatus = BreakStatusNormal
 	w.Cancel()
 }
+
+func (w *While) IsNormal() bool {
+	return w.BreakStatus == BreakStatusNormal
+}
+
